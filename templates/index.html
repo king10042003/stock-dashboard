@@ -86,12 +86,13 @@ body { font-family: 'Inter', sans-serif; }
         ✏️
     </button>
 
-    <input type="file" id="file-{{ item.item_name }}" hidden 
+    <input type="file" accept="image/*" capture="environment" hidden
        onchange="uploadImage(event, '{{ item.item_name }}')">
 
     <label class="bg-blue-100 hover:bg-blue-200 p-2 rounded-full cursor-pointer text-sm">
         📤
-        <input type="file" hidden onchange="uploadImage(event, '{{ item.item_name }}')">
+        <input type="file" accept="image/*" capture="environment"
+           onchange="uploadImage(event, '{{ item.item_name }}')">
     </label>
 
 </div>
