@@ -81,22 +81,29 @@ body { font-family: 'Inter', sans-serif; }
 <!-- ICONS -->
 <div class="absolute top-3 right-3 flex gap-2">
 
-    <!-- EDIT -->
-    <button onclick="triggerUpload('{{ item.item_name }}')" 
+    <!-- EDIT = GALLERY -->
+    <button onclick="document.getElementById('file-{{ item.item_name }}').click()" 
         class="bg-yellow-100 hover:bg-yellow-200 p-2 rounded-full text-sm">
         ✏️
     </button>
 
     <!-- CAMERA -->
-    <button onclick="triggerUpload('{{ item.item_name }}')" 
+    <button onclick="document.getElementById('camera-{{ item.item_name }}').click()" 
         class="bg-blue-100 hover:bg-blue-200 p-2 rounded-full text-sm">
         📷
     </button>
 
-    <!-- SINGLE HIDDEN INPUT -->
+    <!-- GALLERY INPUT -->
     <input type="file" 
            id="file-{{ item.item_name }}" 
-           accept="image/*" 
+           accept="image/*"
+           class="hidden"
+           onchange="uploadImage(event, '{{ item.item_name }}')">
+
+    <!-- CAMERA INPUT -->
+    <input type="file" 
+           id="camera-{{ item.item_name }}" 
+           accept="image/*"
            capture="environment"
            class="hidden"
            onchange="uploadImage(event, '{{ item.item_name }}')">
