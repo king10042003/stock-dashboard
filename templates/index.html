@@ -81,19 +81,25 @@ body { font-family: 'Inter', sans-serif; }
 <!-- ICONS -->
 <div class="absolute top-3 right-3 flex gap-2">
 
+    <!-- EDIT -->
     <button onclick="triggerUpload('{{ item.item_name }}')" 
         class="bg-yellow-100 hover:bg-yellow-200 p-2 rounded-full text-sm">
         ✏️
     </button>
 
-    <input type="file" accept="image/*" capture="environment" id="file-{{ item.item_name }}" hidden
-       onchange="uploadImage(event, '{{ item.item_name }}')">
+    <!-- CAMERA -->
+    <button onclick="triggerUpload('{{ item.item_name }}')" 
+        class="bg-blue-100 hover:bg-blue-200 p-2 rounded-full text-sm">
+        📷
+    </button>
 
-    <label class="bg-blue-100 hover:bg-blue-200 p-2 rounded-full cursor-pointer text-sm">
-        📤
-        <input type="file" accept="image/*" capture="environment"
+    <!-- SINGLE HIDDEN INPUT -->
+    <input type="file" 
+           id="file-{{ item.item_name }}" 
+           accept="image/*" 
+           capture="environment"
+           class="hidden"
            onchange="uploadImage(event, '{{ item.item_name }}')">
-    </label>
 
 </div>
 
