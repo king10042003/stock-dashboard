@@ -86,7 +86,7 @@ body { font-family: 'Inter', sans-serif; }
         ✏️
     </button>
 
-    <input type="file" accept="image/*" capture="environment" hidden
+    <input type="file" accept="image/*" capture="environment" id="file-{{ item.item_name }}" hidden
        onchange="uploadImage(event, '{{ item.item_name }}')">
 
     <label class="bg-blue-100 hover:bg-blue-200 p-2 rounded-full cursor-pointer text-sm">
