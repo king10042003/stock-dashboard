@@ -95,18 +95,18 @@ body { font-family: 'Inter', sans-serif; }
 
     <!-- GALLERY INPUT -->
     <input type="file" 
-           id="file-{{ item.item_name }}" 
+           id="file-{{ loop.index }}"
            accept="image/*"
            class="hidden"
-           onchange="uploadImage(event, '{{ item.item_name }}')">
+           onchange="uploadImage(event, '{{ item.item_name }}', {{ loop.index }})">
 
     <!-- CAMERA INPUT -->
     <input type="file" 
-           id="camera-{{ item.item_name }}" 
+           id="camera-{{ loop.index }}"
            accept="image/*"
            capture="environment"
            class="hidden"
-           onchange="uploadImage(event, '{{ item.item_name }}')">
+           onchange="uploadImage(event, '{{ item.item_name }}', {{ loop.index }})">
 
 </div>
 
@@ -205,7 +205,7 @@ function editItem(name) {
     alert("Edit item: " + name);
 }
 
-function uploadImage(event, itemName) {
+function uploadImage(event, itemName, index) {
     const file = event.target.files[0];
 
     if (!file) return;
@@ -221,15 +221,11 @@ function uploadImage(event, itemName) {
     .then(res => res.json())
     .then(data => {
         if (data.url) {
-            // 🔥 update UI instantly
-            const cards = document.querySelectorAll("h2");
+            const img = document.querySelector("#file-" + index)
+                .closest(".relative")
+                .querySelector("img");
 
-            cards.forEach(card => {
-                if (card.innerText === itemName) {
-                    const img = card.closest("div").querySelector("img");
-                    img.src = data.url;
-                }
-            });
+            img.src = data.url;
         }
     });
 }
