@@ -3,18 +3,10 @@ import pandas as pd
 import os
 from flask import jsonify
 import json
+import sqlite3
+DB_FILE = os.path.join(os.getcwd(), "app.db")
 
-IMAGE_MAP_FILE = "image_map.json"
 
-def load_image_map():
-    if os.path.exists(IMAGE_MAP_FILE):
-        with open(IMAGE_MAP_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-def save_image_map(data):
-    with open(IMAGE_MAP_FILE, "w") as f:
-        json.dump(data, f)
 
 IMAGE_FOLDER = "static/images"
 
@@ -34,7 +26,7 @@ cloudinary.config(
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/tmp/uploads"
 LATEST_FILE = os.path.join(UPLOAD_FOLDER, "latest.csv")
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -42,6 +34,48 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS image_map (
+            item_name TEXT PRIMARY KEY,
+            image_url TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
+
+
+def load_image_map():
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.cursor()
+
+    cur.execute("SELECT item_name, image_url FROM image_map")
+    rows = cur.fetchall()
+
+    conn.close()
+
+    return dict(rows)
+
+def save_image(item_name, image_url):
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO image_map (item_name, image_url)
+        VALUES (?, ?)
+        ON CONFLICT(item_name)
+        DO UPDATE SET image_url=excluded.image_url
+    """, (item_name, image_url))
+
+    conn.commit()
+    conn.close()
+    
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -74,7 +108,7 @@ def index():
 
                 df = df[(df['quantity'] >= min_val) & (df['quantity'] <= max_val)]
             else:
-                df = df[df['item_name'].str.lower().str.contains(search)]
+                df = df[df['item_name'].fillna("").str.lower().str.contains(search)]
 
         data = df.to_dict(orient="records")
 
@@ -90,9 +124,7 @@ def upload_image():
         image_url = result["secure_url"]
 
         # 🔥 SAVE MAPPING
-        image_map = load_image_map()
-        image_map[item_name] = image_url
-        save_image_map(image_map)
+        save_image(item_name, image_url)
 
         return {"url": image_url}
 
@@ -107,7 +139,7 @@ def process_data(filepath):
     image_map = load_image_map()
 
     # Attach image from Cloudinary JSON
-    df['image'] = df['item_name'].map(image_map).fillna("")
+    df['image'] = df['item_name'].fillna("").map(image_map).fillna("")
 
     # Calculations
     df['extra_30'] = (df['quantity'] * 0.30).astype(int)
@@ -129,6 +161,7 @@ def process_data(filepath):
 @app.route("/image-map", methods=["GET"])
 def view_image_map():
     return jsonify(load_image_map())
-    
+
 if __name__ == "__main__":
+    init_db()
     app.run()
