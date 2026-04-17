@@ -82,13 +82,13 @@ body { font-family: 'Inter', sans-serif; }
 <div class="absolute top-3 right-3 flex gap-2">
 
     <!-- EDIT = GALLERY -->
-    <button onclick="document.getElementById('file-{{ item.item_name }}').click()" 
+    <button onclick="document.getElementById('file-{{ loop.index }}').click()"
         class="bg-yellow-100 hover:bg-yellow-200 p-2 rounded-full text-sm">
         ✏️
     </button>
 
     <!-- CAMERA -->
-    <button onclick="document.getElementById('camera-{{ item.item_name }}').click()" 
+    <button onclick="document.getElementById('camera-{{ loop.index }}').click()"
         class="bg-blue-100 hover:bg-blue-200 p-2 rounded-full text-sm">
         📷
     </button>
@@ -221,7 +221,7 @@ function uploadImage(event, itemName, index) {
     .then(res => res.json())
     .then(data => {
         if (data.url) {
-            const img = document.querySelector("#file-" + index)
+            const img = event.target
                 .closest(".relative")
                 .querySelector("img");
 
@@ -229,7 +229,6 @@ function uploadImage(event, itemName, index) {
         }
     });
 }
-
 function triggerUpload(itemName) {
     document.getElementById("file-" + itemName).click();
 }
