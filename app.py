@@ -43,30 +43,6 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 
-def process_data(filepath):
-    df = pd.read_csv(filepath)
-
-    # Ensure numeric
-    df['quantity'] = pd.to_numeric(df['quantity'], errors='coerce')
-
-    # Calculations
-    df['extra_30'] = (df['quantity'] * 0.30).astype(int)
-    df['final_stock'] = df['quantity'] + df['extra_30']
-
-    # Status
-    def stock_status(qty):
-        if qty <= 10:
-            return "low"
-        elif qty >= 100:
-            return "high"
-        else:
-            return "medium"
-
-    df['status'] = df['quantity'].apply(stock_status)
-
-    return df
-
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     search = request.args.get("search", "").lower()
@@ -127,14 +103,17 @@ def process_data(filepath):
 
     df['quantity'] = pd.to_numeric(df['quantity'], errors='coerce').fillna(0)
 
-    # 🔥 Attach image path automatically
-    df['image'] = df['item_name'].apply(
-        lambda x: f"/static/images/{x}.jpg"
-    )
+    # Load Cloudinary image map
+    image_map = load_image_map()
 
+    # Attach image from Cloudinary JSON
+    df['image'] = df['item_name'].map(image_map).fillna("")
+
+    # Calculations
     df['extra_30'] = (df['quantity'] * 0.30).astype(int)
     df['final_stock'] = df['quantity'] + df['extra_30']
 
+    # Status
     def stock_status(qty):
         if qty <= 10:
             return "low"
@@ -146,6 +125,6 @@ def process_data(filepath):
     df['status'] = df['quantity'].apply(stock_status)
 
     return df
-
+    
 if __name__ == "__main__":
     app.run()
