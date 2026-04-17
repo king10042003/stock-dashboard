@@ -26,7 +26,7 @@ cloudinary.config(
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = "/tmp/uploads"
+UPLOAD_FOLDER = "uploads"
 LATEST_FILE = os.path.join(UPLOAD_FOLDER, "latest.csv")
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
