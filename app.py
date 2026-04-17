@@ -125,6 +125,10 @@ def process_data(filepath):
     df['status'] = df['quantity'].apply(stock_status)
 
     return df
+
+@app.route("/image-map", methods=["GET"])
+def view_image_map():
+    return jsonify(load_image_map())
     
 if __name__ == "__main__":
     app.run()
