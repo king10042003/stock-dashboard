@@ -6,7 +6,12 @@ import json
 import sqlite3
 DB_FILE = os.path.join(os.getcwd(), "app.db")
 
+from supabase import create_client, Client
 
+SUPABASE_URL = "https://izzsjvislssztiwtfvut.supabase.co"
+SUPABASE_KEY = "sb_publishable_q0XHRgM2feTGxrVLfpOH-w_u7_4soSX"
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 IMAGE_FOLDER = "static/images"
 
@@ -52,29 +57,17 @@ init_db()
 
 
 def load_image_map():
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
+    response = supabase.table("image_map").select("*").execute()
 
-    cur.execute("SELECT item_name, image_url FROM image_map")
-    rows = cur.fetchall()
+    data = response.data
 
-    conn.close()
-
-    return dict(rows)
+    return {row["item_name"]: row["image_url"] for row in data}
 
 def save_image(item_name, image_url):
-    conn = sqlite3.connect(DB_FILE)
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO image_map (item_name, image_url)
-        VALUES (?, ?)
-        ON CONFLICT(item_name)
-        DO UPDATE SET image_url=excluded.image_url
-    """, (item_name, image_url))
-
-    conn.commit()
-    conn.close()
+    supabase.table("image_map").upsert({
+        "item_name": item_name,
+        "image_url": image_url
+    }).execute()
     
 
 @app.route("/", methods=["GET", "POST"])
