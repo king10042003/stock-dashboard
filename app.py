@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect
 import pandas as pd
 import os
 from flask import jsonify
+import threading
+import time
 import json
 import sqlite3
 DB_FILE = os.path.join(os.getcwd(), "app.db")
@@ -154,6 +156,30 @@ def process_data(filepath):
 @app.route("/image-map", methods=["GET"])
 def view_image_map():
     return jsonify(load_image_map())
+
+def keep_supabase_alive():
+    """Ping Supabase every 3 days to prevent pausing"""
+    while True:
+        try:
+            supabase.table("image_map").select("count").limit(1).execute()
+            app.logger.info("Supabase keep-alive ping sent")
+        except Exception as e:
+            app.logger.error(f"Keep-alive ping failed: {e}")
+        
+        time.sleep(3 * 24 * 60 * 60)  # Every 3 days
+
+# Start background thread when app starts
+thread = threading.Thread(target=keep_supabase_alive, daemon=True)
+thread.start()
+
+@app.route("/cron")
+def cron():
+    try:
+        supabase.table("products").select("*").limit(1).execute()
+        return "Supabase Active ✅"
+    except Exception as e:
+        return f"Error: {str(e)}"
+    
 
 if __name__ == "__main__":
     init_db()
