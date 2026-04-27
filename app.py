@@ -175,7 +175,7 @@ thread.start()
 @app.route("/cron")
 def cron():
     try:
-        supabase.table("products").select("*").limit(1).execute()
+        data = supabase.table("image_map").select("item_name").limit(1).execute()
         return "Supabase Active ✅"
     except Exception as e:
         return f"Error: {str(e)}"
