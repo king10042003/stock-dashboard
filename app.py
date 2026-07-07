@@ -10,8 +10,10 @@ DB_FILE = os.path.join(os.getcwd(), "app.db")
 
 from supabase import create_client, Client
 
-SUPABASE_URL = "https://izzsjvislssztiwtfvut.supabase.co"
-SUPABASE_KEY = "sb_publishable_q0XHRgM2feTGxrVLfpOH-w_u7_4soSX"
+
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_KEY = os.environ["SUPABASE_SECRET_KEY"]
+
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
