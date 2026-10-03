@@ -157,12 +157,37 @@ def upload_image():
 def process_data(filepath):
     df = pd.read_csv(filepath)
 
+    # 1. Normalize column names (strip spaces and lowercase everything)
+    df.columns = [str(col).strip().lower() for col in df.columns]
+
+    # 2. Safely find or map the item name column
+    if 'item_name' not in df.columns:
+        for alt in ['item', 'name', 'product', 'product name']:
+            if alt in df.columns:
+                df = df.rename(columns={alt: 'item_name'})
+                break
+        else:
+            if len(df.columns) > 0:
+                df = df.rename(columns={df.columns[0]: 'item_name'})
+            else:
+                df['item_name'] = []
+
+    # 3. Safely find or map the quantity column
+    if 'quantity' not in df.columns:
+        for alt in ['qty', 'stock', 'amount', 'count']:
+            if alt in df.columns:
+                df = df.rename(columns={alt: 'quantity'})
+                break
+        else:
+            df['quantity'] = 0
+
+    # Convert quantity to numeric safely
     df['quantity'] = pd.to_numeric(df['quantity'], errors='coerce').fillna(0)
 
-    # Load Cloudinary image map
+    # Load Cloudinary image map (with fallback)
     image_map = load_image_map()
 
-    # Attach image from Cloudinary JSON
+    # Attach image from map
     df['image'] = df['item_name'].fillna("").map(image_map).fillna("")
 
     # Calculations
