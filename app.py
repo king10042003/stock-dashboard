@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from flask import Flask, render_template, request, redirect, flash
 import pandas as pd
 import os
@@ -281,7 +281,7 @@ def cron():
 if __name__ == "__main__":
     init_db()
     app.run()
-=======
+
 from flask import Flask, render_template, request, redirect
 import pandas as pd
 import os
@@ -470,4 +470,3 @@ def cron():
 if __name__ == "__main__":
     init_db()
     app.run()
->>>>>>> 848845b4601e98799bd6de16295cfc54a87f25d9
