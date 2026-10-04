@@ -192,14 +192,18 @@ def keep_supabase_alive():
             app.logger.error(f"Keep-alive ping failed: {e}")
         time.sleep(3 * 24 * 60 * 60)
 
+_thread_started = False
+
 @app.before_request
 def activate_job():
-    app.before_request_funcs.default.remove(activate_job) # Run only once on first request
-    try:
-        thread = threading.Thread(target=keep_supabase_alive, daemon=True)
-        thread.start()
-    except Exception as e:
-        app.logger.error(f"Could not start background thread: {e}")
+    global _thread_started
+    if not _thread_started:
+        _thread_started = True
+        try:
+            thread = threading.Thread(target=keep_supabase_alive, daemon=True)
+            thread.start()
+        except Exception as e:
+            app.logger.error(f"Could not start background thread: {e}")
 
 @app.route("/add_item", methods=["POST"])
 def add_item():
